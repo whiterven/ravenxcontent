@@ -1,0 +1,9 @@
+flask
+flask-login
+flask-socketio
+flask-cors
+crewai
+crewai-tools
+taviliy-python
+gunicorn
+eventlet
