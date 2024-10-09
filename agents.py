@@ -1,5 +1,13 @@
 # Importing the Agent class from CrewAI
 from crewai import Agent
+from crewai_tools import SerperDevTool
+from tools import tavily_search
+
+serper_api_key = os.getenv("SERPER_API_KEY")
+gemini_api_key = os.getenv("GEMINI_API_KEY")
+
+llm = "gemini/gemini-1.5-flash"
+search = SerperDevTool(n_results=4)
 
 # Researcher Agent
 researcher_agent = Agent(
@@ -10,7 +18,7 @@ researcher_agent = Agent(
     You utilize real-time data, competitive analysis, and trending SEO keywords to draft a 
     research-based outline that meets the {content_type}, {topic}, and is optimized for search engines.
     """,
-    tools=[search],  
+    tools=[search, tavily_search],  
     llm=llm,  
     max_iter=30,  # Allow ample iterations for deep research
     max_rpm=None,
