@@ -600,7 +600,7 @@ function formatDate(dateString) {
 function cancelSubscription() {
     if (confirm('Are you sure you want to cancel your subscription? This action cannot be undone.')) {
         // In a real application, this would send a request to the server to cancel the subscription
-        alert('Your subscription has been canceled. We're sorry to see you go!');
+        alert("Your subscription has been canceled. We're sorry to see you go!");
         // Update UI to reflect cancellation
         document.getElementById('current-plan').textContent = 'Canceled';
         document.getElementById('change-plan-btn').textContent = 'Reactivate Subscription';
@@ -644,4 +644,33 @@ function addRefreshButton() {
 document.addEventListener('DOMContentLoaded', function() {
     addRefreshButton();
     // ... other initialization code ...
+});
+
+$(document).ready(function() {
+    $('#contentForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        var formData = {
+            topic: $('#topic').val(),
+            contentType: $('#contentType').val(),
+            targetAudience: $('#targetAudience').val(),
+            tone: $('#tone').val()
+        };
+
+        $.ajax({
+            url: '/generate',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            beforeSend: function() {
+                $('#result').html('<div class="alert alert-info">Generating content... Please wait.</div>');
+            },
+            success: function(response) {
+                $('#result').html('<h3>Generated Content:</h3><pre>' + response.result + '</pre>');
+            },
+            error: function(xhr, status, error) {
+                $('#result').html('<div class="alert alert-danger">Error: ' + error + '</div>');
+            }
+        });
+    });
 });

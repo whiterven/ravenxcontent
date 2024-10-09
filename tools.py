@@ -1,3 +1,4 @@
+import os
 from langchain_community.tools import TavilySearchResults
 
 tavily_api_key = os.getenv("TAVILY_API_KEY")

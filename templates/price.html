@@ -9,7 +9,7 @@
     <meta content="RavenX is your premier AI-powered content generation agency, specializing in creating high-quality social media posts, blog posts, articles, white papers, and more." name="description">
 
     <!-- Favicon -->
-    <link href="img/favicon.ico" rel="icon">
+    <link href="static/favicon.ico" rel="icon">
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -19,50 +19,50 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/all.min.css" rel="stylesheet">
 
     <!-- Libraries Stylesheet -->
-    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
-    <link href="lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+    <link href="static/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="static/lib/lightbox/css/lightbox.min.css" rel="stylesheet">
 
     <!-- Customized Bootstrap Stylesheet -->
-    <link href="css/style.css" rel="stylesheet">
+    <link href="static/css/style.css" rel="stylesheet">
 </head>
 
 <body>
     <!-- Navbar Start -->
-    <div class="container-fluid bg-white position-relative">
-        <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0">
-            <a href="index.html" class="navbar-brand text-secondary">
-                <h1 class="display-4 text-uppercase">RavenX</h1>
-            </a>
-            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarCollapse">
-                <div class="navbar-nav ml-auto py-0 pr-3 border-right">
-                    <a href="index.html" class="nav-item nav-link">Home</a>
-                    <a href="about.html" class="nav-item nav-link">About</a>
-                    <a href="service.html" class="nav-item nav-link">Services</a>
-                    <a href="price.html" class="nav-item nav-link active">Prices</a>
-                    <a href="project.html" class="nav-item nav-link">Projects</a>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Pages</a>
-                        <div class="dropdown-menu rounded-0 m-0">
-                            <a href="team.html" class="dropdown-item">Our Team</a>
-                            <a href="testimonial.html" class="dropdown-item">Testimonial</a>
-                        </div>
-                    </div>
-                    <a href="contact.html" class="nav-item nav-link">Contact</a>
-                </div>
-                <div class="d-none d-lg-flex align-items-center pl-4">
-                    <i class="fa fa-2x fa-mobile-alt text-primary mr-3"></i>
-                    <div>
-                        <h6 class="text-body text-uppercase mb-1"><small>Call Anytime</small></h6>
-                        <h6 class="m-0">+1(484)4019149</h6>
-                    </div>
-                </div>
-            </div>
-        </nav>
-    </div>
-    <!-- Navbar End -->
+	<div class="container-fluid bg-white position-relative">
+		<nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0">
+			<a href="/index" class="navbar-brand text-secondary">
+				<h1 class="display-4 text-uppercase">RavenX</h1>
+			</a>
+			<button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarCollapse">
+				<div class="navbar-nav ml-auto py-0 pr-3 border-right">
+					<a href="/index" class="nav-item nav-link">Home</a>
+					<a href="/about" class="nav-item nav-link">About</a>
+					<a href="/service" class="nav-item nav-link">Services</a>
+					<a href="/price" class="nav-item nav-link active">Prices</a>
+					<a href="/blog" class="nav-item nav-link">Blog</a>
+					<div class="nav-item dropdown">
+						<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Account</a>
+						<div class="dropdown-menu rounded-0 m-0">
+							<a href="/signin" class="dropdown-item">Sign In</a>
+							<a href="/signup" class="dropdown-item">Sign Up</a>
+						</div>
+					</div>
+					<a href="/contact" class="nav-item nav-link">Contact</a>
+				</div>
+				<div class="d-none d-lg-flex align-items-center pl-4">
+					<i class="fa fa-2x fa-mobile-alt text-primary mr-3"></i>
+					<div>
+						<h6 class="text-body text-uppercase mb-1"><small>Call Anytime</small></h6>
+						<h6 class="m-0">+1(484)4019149</h6>
+					</div>
+				</div>
+			</div>
+		</nav>
+	</div>
+	<!-- Navbar End -->
 
     <!-- Page Header Start -->
     <div class="page-header container-fluid bg-primary d-flex flex-column align-items-center justify-content-center">
@@ -293,7 +293,7 @@
     <div class="container-fluid bg-dark text-white-50 py-5 px-sm-3 px-md-5" style="margin-top: 90px;">
         <div class="row pt-5">
             <div class="col-lg-3 col-md-6 mb-5">
-                <a href="index.html" class="navbar-brand">
+                <a href="/index" class="navbar-brand">
                     <h1 class="m-0 mt-n2 text-white display-4">RavenX</h1>
                 </a>
                 <p>Revolutionizing content creation with AI-powered solutions. Elevate your brand's voice across all platforms.</p>
@@ -349,18 +349,18 @@
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
-    <script src="lib/easing/easing.min.js"></script>
-    <script src="lib/waypoints/waypoints.min.js"></script>
-    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
-    <script src="lib/isotope/isotope.pkgd.min.js"></script>
-    <script src="lib/lightbox/js/lightbox.min.js"></script>
+    <script src="static/lib/easing/easing.min.js"></script>
+    <script src="static/lib/waypoints/waypoints.min.js"></script>
+    <script src="static/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="static/lib/isotope/isotope.pkgd.min.js"></script>
+    <script src="static/lib/lightbox/js/lightbox.min.js"></script>
 
     <!-- Contact Javascript File -->
-    <script src="mail/jqBootstrapValidation.min.js"></script>
-    <script src="mail/contact.js"></script>
+    <script src="static/mail/jqBootstrapValidation.min.js"></script>
+    <script src="static/mail/contact.js"></script>
 
     <!-- Template Javascript -->
-    <script src="js/main.js"></script>
+    <script src="static/js/main.js"></script>
 </body>
 
 </html>

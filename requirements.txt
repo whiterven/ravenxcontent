@@ -4,7 +4,8 @@ flask-socketio
 flask-cors
 crewai
 crewai-tools
-taviliy-python
+tavily-python
 gunicorn
 eventlet
 flask-sqlalchemy
+stripe
