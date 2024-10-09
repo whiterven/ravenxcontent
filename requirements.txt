@@ -7,3 +7,4 @@ crewai-tools
 taviliy-python
 gunicorn
 eventlet
+flask-sqlalchemy
