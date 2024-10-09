@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>RavenX - Blog</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="AI Content Generation, Blog Posts, Articles, Latest News" name="keywords">
+    <meta content="Explore the latest insights and updates from RavenX, your premier AI-powered content generation agency." name="description">
+
+    <!-- Favicon -->
+    <link href="img/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Rubik&display=swap" rel="stylesheet"> 
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Navbar Start -->
+    <div class="container-fluid bg-white position-relative">
+        <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0">
+            <a href="index.html" class="navbar-brand text-secondary">
+                <h1 class="display-4 text-uppercase">RavenX</h1>
+            </a>
+            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav ml-auto py-0 pr-3 border-right">
+                    <a href="index.html" class="nav-item nav-link">Home</a>
+                    <a href="about.html" class="nav-item nav-link">About</a>
+                    <a href="service.html" class="nav-item nav-link">Services</a>
+                    <a href="price.html" class="nav-item nav-link">Prices</a>
+                    <a href="blog.html" class="nav-item nav-link active">Blog</a>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Account</a>
+                        <div class="dropdown-menu rounded-0 m-0">
+                            <a href="signin.html" class="dropdown-item">Sign In</a>
+                            <a href="signup.html" class="dropdown-item">Sign Up</a>
+                        </div>
+                    </div>
+                    <a href="contact.html" class="nav-item nav-link">Contact</a>
+                </div>
+                <div class="d-none d-lg-flex align-items-center pl-4">
+                    <i class="fa fa-2x fa-mobile-alt text-primary mr-3"></i>
+                    <div>
+                        <h6 class="text-body text-uppercase mb-1"><small>Call Anytime</small></h6>
+                        <h6 class="m-0">+1(484)4019149</h6>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- Navbar End -->
+
+    <!-- Page Header Start -->
+    <div class="page-header container-fluid bg-primary d-flex flex-column align-items-center justify-content-center">
+        <h1 class="display-3 text-uppercase mb-3">Blog</h1>
+        <div class="d-inline-flex text-white">
+            <h6 class="text-uppercase m-0"><a class="text-white" href="">Home</a></h6>
+            <h6 class="m-0 px-3">/</h6>
+            <h6 class="text-uppercase m-0">Blog</h6>
+        </div>
+    </div>
+    <!-- Page Header End -->
+
+    <!-- Search Start -->
+    <div class="container-fluid bg-light py-5">
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <h2 class="text-center mb-4">Search Articles</h2>
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search for articles...">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="button">Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Search End -->
+
+    <!-- Blog Start -->
+    <div class="container-fluid py-5">
+        <div class="container pt-5 pb-3">
+            <h1 class="display-4 text-uppercase text-center mb-5">Latest Blog Posts</h1>
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="bg-light rounded">
+                        <img class="img-fluid rounded-top w-100" src="img/blog-1.jpg" alt="">
+                        <div class="p-4">
+                            <div class="d-flex mb-2">
+                                <a class="text-secondary text-uppercase font-weight-medium" href="">Admin</a>
+                                <span class="text-primary px-2">|</span>
+                                <a class="text-secondary text-uppercase font-weight-medium" href="">AI</a>
+                            </div>
+                            <h4 class="text-uppercase mb-3">The Future of AI in Content Creation</h4>
+                            <p>Explore how AI is revolutionizing the content creation industry. From automated writing to personalized recommendations, AI is changing the way we produce and consume content.</p>
+                            <div class="d-flex justify-content-between mt-3">
+                                <button class="btn btn-primary px-3" onclick="showFullPost(1)">Read More</button>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-primary mr-2" onclick="likePost(1)"><i class="far fa-heart"></i> <span id="likes-1">15</span></button>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="showComments(1)"><i class="far fa-comment"></i> <span id="comments-1">7</span></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="bg-light rounded">
+                        <img class="img-fluid rounded-top w-100" src="img/blog-2.jpg" alt="">
+                        <div class="p-4">
+                            <div class="d-flex mb-2">
+                                <a class="text-secondary text-uppercase font-weight-medium" href="">Admin</a>
+                                <span class="text-primary px-2">|</span>
+                                <a class="text-secondary text-uppercase font-weight-medium" href="">Content Strategy</a>
+                            </div>
+                            <h4 class="text-uppercase mb-3">5 Ways to Optimize Your Content Strategy</h4>
+                            <p>Learn how to enhance your content strategy for maximum impact. Discover key techniques to improve engagement, reach, and conversion rates with your content.</p>
+                            <div class="d-flex justify-content-between mt-3">
+                                <button class="btn btn-primary px-3" onclick="showFullPost(2)">Read More</button>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-primary mr-2" onclick="likePost(2)"><i class="far fa-heart"></i> <span id="likes-2">23</span></button>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="showComments(2)"><i class="far fa-comment"></i> <span id="comments-2">12</span></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="bg-light rounded">
+                        <img class="img-fluid rounded-top w-100" src="img/blog-3.jpg" alt="">
+                        <div class="p-4">
+                            <div class="d-flex mb-2">
+                                <a class="text-secondary text-uppercase font-weight-medium" href="">Admin</a>
+                                <span class="text-primary px-2">|</span>
+                                <a class="text-secondary text-uppercase font-weight-medium" href="">SEO</a>
+                            </div>
+                            <h4 class="text-uppercase mb-3">SEO Best Practices for AI-Generated Content</h4>
+                            <p>Discover how to optimize AI-generated content for search engines. Learn the latest techniques to ensure your AI-created content ranks well and drives organic traffic.</p>
+                            <div class="d-flex justify-content-between mt-3">
+                                <button class="btn btn-primary px-3" onclick="showFullPost(3)">Read More</button>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-primary mr-2" onclick="likePost(3)"><i class="far fa-heart"></i> <span id="likes-3">18</span></button>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="showComments(3)"><i class="far fa-comment"></i> <span id="comments-3">9</span></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Blog End -->
+
+    <!-- Full Post Modal -->
+    <div class="modal fade" id="fullPostModal" tabindex="-1" role="dialog" aria-labelledby="fullPostModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="fullPostModalLabel">Blog Post Title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <img id="fullPostImage" src="" alt="Blog Post Image" class="img-fluid mb-4">
+                    <div id="fullPostContent"></div>
+                    <div class="mt-4">
+                        <button id="likeFullPostBtn" class="btn btn-primary mr-2" onclick="likeFullPost()"><i class="far fa-heart"></i> Like</button>
+                        <button class="btn btn-primary mr-2" onclick="showFullPostComments()"><i class="far fa-comment"></i> Comments</button>
+                        <button class="btn btn-primary" onclick="sharePost()"><i class="fas fa-share"></i> Share</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comments Modal -->
+    <div class="modal fade" id="commentsModal" tabindex="-1" role="dialog" aria-labelledby="commentsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="commentsModalLabel">Comments</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="commentsList"></div>
+                    <form id="commentForm" class="mt-4">
+                        <div class="form-group">
+                            <label for="commentText">Add a comment:</label>
+                            <textarea class="form-control" id="commentText" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit Comment</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Start -->
+    <div class="container-fluid bg-dark text-white-50 py-5 px-sm-3 px-md-5" style="margin-top: 90px;">
+        <div class="row pt-5">
+            <div class="col-lg-3 col-md-6 mb-5">
+                <a href="index.html" class="navbar-brand">
+                    <h1 class="m-0 mt-n2 text-white display-4">RavenX</h1>
+                </a>
+                <p>Revolutionizing content creation with AI-powered solutions. Elevate your brand's voice across all platforms.</p>
+                <h6 class="text-uppercase text-white py-2">Follow Us</h6>
+                <div class="d-flex justify-content-start">
+                    <a class="btn btn-lg btn-primary btn-lg-square mr-2" href="#"><i class="fab fa-twitter"></i></a>
+                    <a class="btn btn-lg btn-primary btn-lg-square mr-2" href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a class="btn btn-lg btn-primary btn-lg-square mr-2" href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a class="btn btn-lg btn-primary btn-lg-square" href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-5">
+                <h4 class="text-uppercase text-white mb-4">Get In Touch</h4>
+                <p>Ready to transform your content strategy? Reach out to us today!</p>
+                <p><i class="fa fa-map-marker-alt text-white mr-2"></i>444 Alaska Ave, Torrance CA 90503, USA</p>
+                <p><i class="fa fa-phone-alt text-white mr-2"></i>+1(484)4019149</p>
+                <p><i class="fa fa-envelope text-white mr-2"></i>info@ravenx.com</p>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-5">
+                <h4 class="text-uppercase text-white mb-4">Quick Links</h4>
+                <div class="d-flex flex-column justify-content-start">
+                    <a class="text-white-50 mb-2<a class="text-white-50 mb-2" href="#"><i class="fa fa-angle-right text-white mr-2"></i>Home</a>
+                    <a class="text-white-50 mb-2" href="#"><i class="fa fa-angle-right text-white mr-2"></i>About Us</a>
+                    <a class="text-white-50 mb-2" href="#"><i class="fa fa-angle-right text-white mr-2"></i>Our Services</a>
+                    <a class="text-white-50 mb-2" href="#"><i class="fa fa-angle-right text-white mr-2"></i>Blog</a>
+                    <a class="text-white-50" href="#"><i class="fa fa-angle-right text-white mr-2"></i>Contact Us</a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-5">
+                <h4 class="text-uppercase text-white mb-4">Newsletter</h4>
+                <p class="mb-4">Stay updated with the latest in AI content creation. Subscribe to our newsletter!</p>
+                <div class="w-100 mb-3">
+                    <div class="input-group">
+                        <input type="text" class="form-control border-light" style="padding: 25px;" placeholder="Your Email">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary text-uppercase px-3">Sign Up</button>
+                        </div>
+                    </div>
+                </div>
+                <i>Join the AI content revolution with RavenX</i>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid py-4 px-sm-3 px-md-5" style="background: #111111;">
+        <p class="mb-2 text-center text-white-50">&copy; <a href="#">RavenX</a>. All Rights Reserved.</p>
+        <p class="m-0 text-center text-white-50">Designed by <a href="https://htmlcodex.com">HTML Codex</a></p>
+    </div>
+    <!-- Footer End -->
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="fa fa-angle-up"></i></a>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/waypoints/waypoints.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="lib/isotope/isotope.pkgd.min.js"></script>
+    <script src="lib/lightbox/js/lightbox.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="js/main.js"></script>
+</body>
+
+</html>
