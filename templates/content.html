@@ -42,16 +42,15 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <div class="navbar-nav ml-auto py-0 pr-3 border-right">
-                    <a href="/dashboard" class="nav-item nav-link active">Dashboard</a>
-                    <a href="/content" class="nav-item nav-link">Generate Content<a href="/profile" class="nav-item nav-link">Profile</a>
-                    <a href="signout" class="nav-item nav-link">Sign Out</a>
+                    <!-- Navigation items will be dynamically inserted here by JavaScript -->
                 </div>
-                <div class="d-none d-lg-flex align-items-center pl-4">
+                <div class="d-none d-lg-flex align-items-center pl-4 dropdown">
                     <i class="fa fa-2x fa-user text-primary mr-3"></i>
                     <div>
                         <h6 class="text-body text-uppercase mb-1"><small>Welcome</small></h6>
                         <h6 class="m-0" id="user-fullname">John Doe</h6>
                     </div>
+                    <!-- Dropdown menu will be dynamically inserted here by JavaScript -->
                 </div>
             </div>
         </nav>
@@ -70,43 +69,45 @@
     <!-- Page Header End -->
 
     <!-- Content Generation Form Start -->
-	<div class="container-fluid py-5">
-		<div class="container">
-			<div class="row align-items-center">
-				<div class="col-lg-5">
-					<img class="img-fluid rounded" src="static/img/ai-agents.jpeg" alt="AI Content Generation">
-				</div>
-				<div class="col-lg-7">
-					<h1 class="display-4 text-uppercase mb-4">Generate Your Content</h1>
-					<p class="mb-4">Fill out the form below to generate high-quality content tailored to your needs.</p>
-					<form id="contentForm" action="/generate" method="POST">
-						<div class="form-group">
-							<label for="topic">Topic</label>
-							<input type="text" class="form-control" id="topic" name="topic" required>
-							<small class="form-text text-muted">Example: "The benefits of artificial intelligence in healthcare"</small>
-						</div>
-						<div class="form-group">
-							<label for="contentType">Content Type</label>
-							<input type="text" class="form-control" id="contentType" name="contentType" required>
-							<small class="form-text text-muted">Example: "Blog Post", "Social Media Post", "Article", "White Paper"</small>
-						</div>
-						<div class="form-group">
-							<label for="targetAudience">Target Audience</label>
-							<input type="text" class="form-control" id="targetAudience" name="targetAudience" required>
-							<small class="form-text text-muted">Example: "Healthcare professionals and tech enthusiasts"</small>
-						</div>
-						<div class="form-group">
-							<label for="tone">Tone</label>
-							<input type="text" class="form-control" id="tone" name="tone" required>
-							<small class="form-text text-muted">Example: "Professional", "Casual", "Humorous", "Informative"</small>
-						</div>
-						<button type="submit" class="btn btn-primary">Generate Content</button>
-					</form>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- Content Generation Form End -->
+    <div class="container-fluid py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 mb-4">
+                    <img class="img-fluid rounded w-100" src="static/img/ai-agents.jpeg" alt="AI Content Generation">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="display-4 text-uppercase mb-4">Generate Your Content</h1>
+                    <p class="mb-4">Fill out the form below to generate high-quality content tailored to your needs.</p>
+                    <form id="contentForm" action="/generate" method="POST">
+                        <div class="form-group">
+                            <label for="topic">Topic</label>
+                            <input type="text" class="form-control" id="topic" name="topic" required>
+                            <small class="form-text text-muted">Example: "The benefits of artificial intelligence in healthcare"</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="contentType">Content Type</label>
+                            <input type="text" class="form-control" id="contentType" name="contentType" required>
+                            <small class="form-text text-muted">Example: "Blog Post", "Social Media Post", "Article", "White Paper"</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="targetAudience">Target Audience</label>
+                            <input type="text" class="form-control" id="targetAudience" name="targetAudience" required>
+                            <small class="form-text text-muted">Example: "Healthcare professionals and tech enthusiasts"</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="tone">Tone</label>
+                            <input type="text" class="form-control" id="tone" name="tone" required>
+                            <small class="form-text text-muted">Example: "Professional", "Casual", "Humorous", "Informative"</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Generate Content</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Content Generation Form End -->
 
     <!-- Footer Start -->
     <div class="container-fluid bg-dark text-white-50 py-5 px-sm-3 px-md-5" style="margin-top: 90px;">

@@ -9,7 +9,7 @@
     <meta content="RavenX is your premier AI-powered content generation agency, specializing in creating high-quality social media posts, blog posts, articles, white papers, and more." name="description">
 
     <!-- Favicon -->
-    <link href="static/img/favicon.ico" rel="icon">
+    <link href="static/favicon.ico" rel="icon">
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -37,18 +37,19 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarCollapse">
-                <div class="navbar-nav ml-auto py-0 pr-3 border-right">
+                <div class="navbar-nav ml-auto py-0 pr-3">
                     <a href="/dashboard" class="nav-item nav-link">Dashboard</a>
                     <a href="/content" class="nav-item nav-link">Generate Content</a>
-                    <a href="/profile" class="nav-item nav-link active">Profile</a>
-                    <a href="/billing" class="nav-item nav-link">Billing</a>
-                    <a href="signout" class="nav-item nav-link">Sign Out</a>
-                </div>
-                <div class="d-none d-lg-flex align-items-center pl-4">
-                    <i class="fa fa-2x fa-user text-primary mr-3"></i>
-                    <div>
-                        <h6 class="text-body text-uppercase mb-1"><small>Welcome</small></h6>
-                        <h6 class="m-0" id="user-fullname">John Doe</h6>
+                    <a href="/blog" class="nav-item nav-link">Blog</a>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" id="user-dropdown">
+                            <span id="user-fullname">Loading...</span>
+                        </a>
+                        <div class="dropdown-menu">
+                            <a href="/profile" class="dropdown-item">Profile</a>
+                            <a href="/billing" class="dropdown-item">Billing</a>
+                            <a href="#" class="dropdown-item" id="signout-link">Sign Out</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -78,21 +79,21 @@
                         <h3 class="text-uppercase mb-4">User Statistics</h3>
                         <div class="d-flex align-items-center justify-content-between mb-3">
                             <h6 class="text-uppercase m-0">Total Content Generated</h6>
-                            <h6 class="text-primary m-0" id="total-content">253</h6>
+                            <h6 class="text-primary m-0" id="total-content">0</h6>
                         </div>
                         <div class="d-flex align-items-center justify-content-between mb-3">
                             <h6 class="text-uppercase m-0">Active Projects</h6>
-                            <h6 class="text-primary m-0" id="active-projects">7</h6>
+                            <h6 class="text-primary m-0" id="active-projects">0</h6>
                         </div>
                         <div class="d-flex align-items-center justify-content-between">
                             <h6 class="text-uppercase m-0">Account Status</h6>
-                            <h6 class="text-primary m-0" id="account-status">Premium</h6>
+                            <h6 class="text-primary m-0" id="account-status">Loading...</h6>
                         </div>
                     </div>
                     <div class="bg-light p-4">
                         <h3 class="text-uppercase mb-4">Quick Actions</h3>
                         <a href="/content" class="btn btn-primary btn-block mb-3">Generate New Content</a>
-                        <a href="/projects" class="btn btn-outline-primary btn-block mb-3">View All Projects</a>
+                        <a href="/project" class="btn btn-outline-primary btn-block mb-3">View All Projects</a>
                         <a href="/billing" class="btn btn-outline-primary btn-block">Manage Billing</a>
                     </div>
                 </div>
@@ -100,31 +101,10 @@
                 <!-- Recent Content Generations -->
                 <div class="col-lg-8">
                     <h3 class="text-uppercase mb-4">Recent Content Generations</h3>
-                    <div class="bg-light p-4 mb-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <h5 class="text-uppercase m-0">The Future of AI in Healthcare</h5>
-                            <span class="badge badge-primary ml-auto">Blog Post</span>
-                        </div>
-                        <p class="m-0">Generated on: <span class="text-primary">May 15, 2023</span></p>
-                        <a href="#" class="btn btn-sm btn-outline-primary mt-2">View Content</a>
+                    <div id="recent-content">
+                        <!-- Content will be dynamically inserted here -->
                     </div>
-                    <div class="bg-light p-4 mb-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <h5 class="text-uppercase m-0">10 Tips for Sustainable Living</h5>
-                            <span class="badge badge-primary ml-auto">Social Media</span>
-                        </div>
-                        <p class="m-0">Generated on: <span class="text-primary">May 13, 2023</span></p>
-                        <a href="#" class="btn btn-sm btn-outline-primary mt-2">View Content</a>
-                    </div>
-                    <div class="bg-light p-4 mb-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <h5 class="text-uppercase m-0">The Impact of 5G Technology</h5>
-                            <span class="badge badge-primary ml-auto">White Paper</span>
-                        </div>
-                        <p class="m-0">Generated on: <span class="text-primary">May 10, 2023</span></p>
-                        <a href="#" class="btn btn-sm btn-outline-primary mt-2">View Content</a>
-                    </div>
-                    <a href="/all-content" class="btn btn-primary">View All Generated Content</a>
+                    <a href="/project" class="btn btn-primary">View All Generated Content</a>
                 </div>
             </div>
 
@@ -143,18 +123,18 @@
                 <div class="col-lg-12">
                     <h3 class="text-uppercase mb-4">Account Settings</h3>
                     <div class="bg-light p-4">
-                        <form>
+                        <form id="account-settings-form">
                             <div class="form-group">
                                 <label for="fullName">Full Name</label>
-                                <input type="text" class="form-control" id="fullName" value="John Doe">
+                                <input type="text" class="form-control" id="fullName" name="fullName">
                             </div>
                             <div class="form-group">
                                 <label for="email">Email Address</label>
-                                <input type="email" class="form-control" id="email" value="johndoe@example.com">
+                                <input type="email" class="form-control" id="email" name="email">
                             </div>
                             <div class="form-group">
                                 <label for="password">Change Password</label>
-                                <input type="password" class="form-control" id="password" placeholder="Enter new password">
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Enter new password">
                             </div>
                             <button type="submit" class="btn btn-primary">Update Account Settings</button>
                         </form>
@@ -234,7 +214,7 @@
     <!-- Dashboard Javascript -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-		<script src="static/js/script.js"></script>
+		<script src="static/js/dashboard.js"></script>
 </body>
 
 </html>

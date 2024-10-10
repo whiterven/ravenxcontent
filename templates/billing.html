@@ -77,15 +77,15 @@
                         <h3 class="text-uppercase mb-4">Current Plan</h3>
                         <div class="d-flex justify-content-between mb-3">
                             <h6 class="text-uppercase m-0">Plan Name</h6>
-                            <h6 class="text-primary m-0" id="current-plan">Premium</h6>
+                            <h6 class="text-primary m-0" id="current-plan">Loading...</h6>
                         </div>
                         <div class="d-flex justify-content-between mb-3">
                             <h6 class="text-uppercase m-0">Billing Cycle</h6>
-                            <h6 class="text-primary m-0" id="billing-cycle">Monthly</h6>
+                            <h6 class="text-primary m-0" id="billing-cycle">Loading...</h6>
                         </div>
                         <div class="d-flex justify-content-between mb-3">
                             <h6 class="text-uppercase m-0">Next Billing Date</h6>
-                            <h6 class="text-primary m-0" id="next-billing-date">June 15, 2023</h6>
+                            <h6 class="text-primary m-0" id="next-billing-date">Loading...</h6>
                         </div>
                         <button id="change-plan-btn" class="btn btn-primary btn-block mt-4">Change Plan</button>
                     </div>
@@ -95,10 +95,10 @@
                     <div id="payment-method-info" class="bg-light p-4 mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="text-uppercase m-0">Current Payment Method</h6>
-                            <img src="img/visa-logo.png" alt="Visa" style="height: 30px;">
+                            <img id="card-logo" src="" alt="Card Logo" style="height: 30px;">
                         </div>
-                        <p class="m-0">Visa ending in 1234</p>
-                        <p class="m-0">Expires 12/2025</p>
+                        <p id="card-number" class="m-0">Loading...</p>
+                        <p id="card-expiry" class="m-0">Loading...</p>
                         <button id="update-payment-btn" class="btn btn-primary mt-3">Update Payment Method</button>
                     </div>
                     <h3 class="text-uppercase mb-4">Billing History</h3>
@@ -122,6 +122,41 @@
         </div>
     </div>
     <!-- Billing Content End -->
+
+    <!-- Modal for Updating Payment Method -->
+    <div class="modal fade" id="updatePaymentModal" tabindex="-1" role="dialog" aria-labelledby="updatePaymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updatePaymentModalLabel">Update Payment Method</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="update-payment-form">
+                        <div class="form-group">
+                            <label for="cardNumber">Card Number</label>
+                            <input type="text" class="form-control" id="cardNumber" placeholder="1234 5678 9012 3456" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="expiryDate">Expiry Date</label>
+                                <input type="text" class="form-control" id="expiryDate" placeholder="MM/YY" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="cvv">CVV</label>
+                                <input type="text" class="form-control" id="cvv" placeholder="123" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal for Updating Payment Method End -->
+
 
     <!-- Footer Start -->
     <div class="container-fluid bg-dark text-white-50 py-5 px-sm-3 px-md-5" style="margin-top: 90px;">
@@ -192,7 +227,7 @@
     <!-- Template Javascript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-	<script src="static/js/script.js"></script>
+	<script src="static/js/billing.js"></script>
 </body>
 
 </html>

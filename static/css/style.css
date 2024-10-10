@@ -319,6 +319,47 @@ legend {
   }
 }
 
+.generated-content, .task-outputs {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.content-actions {
+  margin-bottom: 1rem;
+}
+
+.content-actions button {
+  margin-right: 0.5rem;
+}
+
+.generated-content h2, .task-outputs h2 {
+  font-size: 1.5rem;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.generated-content h3, .task-outputs h3 {
+  font-size: 1.3rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.generated-content p, .task-outputs p {
+  margin-bottom: 0.75rem;
+}
+
+.generated-content ul, .task-outputs ul {
+  margin-left: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.generated-content li, .task-outputs li {
+  margin-bottom: 0.25rem;
+}
+
 progress {
   vertical-align: baseline;
 }

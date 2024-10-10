@@ -1,19 +1,22 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from crewai import Agent, Task, Crew, Process
-from flask_socketio import SocketIO
+from agents import create_researcher, create_writer
+from tasks import create_researcher_task, create_writer_task
+from tools import tavily_search
+from flask_socketio import SocketIO, emit, join_room
 from threading import Thread
 import uuid
 from datetime import timedelta, datetime
 from functools import wraps
 import stripe
-
-# Import the agent creation functions
-from agents import create_researcher, create_writer
-from tasks import create_researcher_task, create_writer_task
+from sqlalchemy import func
+import traceback
+from flask import current_app
+from flask_migrate import Migrate
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', 'fallback_secret_key')
@@ -21,7 +24,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=3)  # Set session timeout to 3 hours
 db = SQLAlchemy(app)
-socketio = SocketIO(app, async_mode='threading')
+migrate = Migrate(app, db)
+
+socketio = SocketIO(app, cors_allowed_origins="*", logger=True, engineio_logger=True)
+
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -41,6 +47,8 @@ class User(UserMixin, db.Model):
     next_billing_date = db.Column(db.DateTime, nullable=True)
 
     def set_password(self, password):
+        if not password:
+            raise ValueError("Password cannot be empty")
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
@@ -53,6 +61,25 @@ class Invoice(db.Model):
     amount = db.Column(db.Float, nullable=False)
     date = db.Column(db.DateTime, nullable=False)
     description = db.Column(db.String(255), nullable=False)
+
+class Content(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    content_type = db.Column(db.String(50), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref=db.backref('contents', lazy=True))
+
+class Project(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    status = db.Column(db.String(20), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref=db.backref('projects', lazy=True))
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -67,9 +94,8 @@ def login_required_custom(f):
     return decorated_function
 
 # Crew functions (as per your agents and tasks)
-def create_crew(topic, content_type, target_audience, tone, sid):
-
-    # Create agents
+def create_crew(topic, content_type, target_audience, tone, request_id):
+    # Create agents using the imported functions
     researcher = create_researcher(topic, target_audience)
     writer = create_writer(content_type, tone, target_audience)
 
@@ -87,29 +113,47 @@ def create_crew(topic, content_type, target_audience, tone, sid):
 
     return crew
 
-def run_crew(topic, content_type, target_audience, tone, request_id):
-    try:
-        crew = create_crew(topic, content_type, target_audience, tone, request_id)
-        crew_output = crew.kickoff()
-        
-        result = {
-            'task_outputs': [],
-            'final_output': str(crew_output)
-        }
+def run_crew(topic, content_type, target_audience, tone, request_id, user_id):
+    with app.app_context():
+        try:
+            app.logger.info(f"Starting content generation for request_id: {request_id}")
+            crew = create_crew(topic, content_type, target_audience, tone, request_id)
+            
+            socketio.emit('generation_progress', {'message': 'Starting content generation...'}, room=request_id)
+            app.logger.info(f"Emitted generation_progress for request_id: {request_id}")
+            
+            crew_output = crew.kickoff()
+            
+            result = {
+                'task_outputs': [],
+                'final_output': str(crew_output)
+            }
 
-        if hasattr(crew_output, 'tasks'):
-            result['task_outputs'] = [
-                {
-                    'task_id': task.task_id,
-                    'output': task.output
-                } for task in crew_output.tasks
-            ]
-        
-        socketio.emit('generation_complete', {'result': result, 'request_id': request_id})
-    except Exception as e:
-        app.logger.error(f"Error in background task: {str(e)}")
-        socketio.emit('generation_error', {'error': 'An error occurred during content generation.', 'request_id': request_id})
-
+            if hasattr(crew_output, 'tasks'):
+                result['task_outputs'] = [
+                    {
+                        'task_id': task.task_id,
+                        'output': task.output
+                    } for task in crew_output.tasks
+                ]
+            
+            new_content = Content(
+                user_id=user_id,
+                title=topic,
+                content=result['final_output'],
+                content_type=content_type
+            )
+            db.session.add(new_content)
+            db.session.commit()
+            
+            app.logger.info(f"Content generation completed for request_id: {request_id}")
+            app.logger.info(f"Emitting generation_complete for request_id: {request_id}")
+            socketio.emit('generation_complete', {'result': result, 'request_id': request_id}, room=request_id)
+            app.logger.info(f"Emitted generation_complete for request_id: {request_id}")
+        except Exception as e:
+            app.logger.error(f"Error in background task for request_id {request_id}: {str(e)}")
+            app.logger.error(traceback.format_exc())
+            socketio.emit('generation_error', {'error': 'An error occurred during content generation.', 'request_id': request_id}, room=request_id)
 # Routes
 @app.route('/')
 def home():
@@ -127,46 +171,56 @@ def dashboard():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
+        print(request.form)  # Debug print
         full_name = request.form.get('full_name')
         email = request.form.get('email')
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
         
+        if not all([full_name, email, password, confirm_password]):
+            return jsonify({'success': False, 'message': 'All fields are required'})
+        
         if password != confirm_password:
-            flash('Passwords do not match')
-            return redirect(url_for('signup'))
+            return jsonify({'success': False, 'message': 'Passwords do not match'})
         
         user = User.query.filter_by(email=email).first()
         if user:
-            flash('Email already exists')
-            return redirect(url_for('signup'))
+            return jsonify({'success': False, 'message': 'Email already exists'})
         
-        new_user = User(full_name=full_name, email=email)
-        new_user.set_password(password)
-        db.session.add(new_user)
-        db.session.commit()
-        
-        # Log the user in after successful account creation
-        login_user(new_user)
-        flash('Account created successfully')
-        return redirect(url_for('pricing'))
+        try:
+            new_user = User(full_name=full_name, email=email)
+            new_user.set_password(password)
+            db.session.add(new_user)
+            db.session.commit()
+            
+            login_user(new_user)
+            return jsonify({'success': True, 'message': 'Account created successfully'})
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Error during signup: {str(e)}")
+            return jsonify({'success': False, 'message': 'An error occurred during signup'})
     
     return render_template('signup.html')
 
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
     if request.method == 'POST':
+        print(request.form)  # Debug print
         email = request.form.get('email')
         password = request.form.get('password')
+        
+        if not email or not password:
+            return jsonify({'success': False, 'message': 'Email and password are required'})
+        
         user = User.query.filter_by(email=email).first()
         
         if user and user.check_password(password):
             login_user(user)
-            session.permanent = True  # Use the permanent session with our custom lifetime
+            session.permanent = True
             next_page = request.args.get('next')
-            return redirect(next_page or url_for('dashboard'))
+            return jsonify({'success': True, 'redirect': next_page or url_for('dashboard')})
         else:
-            flash('Invalid email or password')
+            return jsonify({'success': False, 'message': 'Invalid email or password'})
     
     return render_template('signin.html')
 
@@ -176,23 +230,23 @@ def signout():
     logout_user()
     return redirect(url_for('home'))
 
-@app.route('/generate', methods=['GET', 'POST'])
+@app.route('/generate', methods=['POST'])
 @login_required_custom
 def generate():
-    if request.method == 'POST':
-        data = request.json
-        topic = data['topic']
-        content_type = data['contentType']
-        target_audience = data['targetAudience']
-        tone = data['tone']
-        request_id = str(uuid.uuid4())
+    data = request.json
+    topic = data['topic']
+    content_type = data['contentType']
+    target_audience = data['targetAudience']
+    tone = data['tone']
+    request_id = str(uuid.uuid4())
 
-        Thread(target=run_crew, args=(topic, content_type, target_audience, tone, request_id)).start()
-        return jsonify({'message': 'Generation started', 'request_id': request_id}), 202
-    else:
-        return render_template('content.html')
+    app.logger.info(f"Starting generation for request_id: {request_id}")
+    thread = Thread(target=run_crew, args=(topic, content_type, target_audience, tone, request_id, current_user.id))
+    thread.start()
+    
+    return jsonify({'message': 'Generation started', 'request_id': request_id}), 202
 
-@app.route('/pricing', methods=['GET', 'POST'])
+@app.route('/price', methods=['GET', 'POST'])
 @login_required_custom
 def pricing():
     if request.method == 'POST':
@@ -202,7 +256,7 @@ def pricing():
             db.session.commit()
             flash(f'Your plan has been updated to {plan}')
             return redirect(url_for('dashboard'))
-    return render_template('pricing.html')
+    return render_template('price.html')
 
 @app.route('/blog')
 def blog():
@@ -225,6 +279,81 @@ def content():
 def service():
     return render_template('service.html')
 
+@app.route('/api/billing', methods=['GET'])
+@login_required_custom
+def api_billing():
+    # Get current payment method
+    payment_method = get_stripe_payment_method(current_user)
+    
+    # Get billing history
+    invoices = Invoice.query.filter_by(user_id=current_user.id).order_by(Invoice.date.desc()).all()
+    
+    billing_data = {
+        'currentPlan': current_user.plan,
+        'billingCycle': 'Monthly',  # You may need to adjust this based on your actual billing cycle logic
+        'nextBillingDate': current_user.next_billing_date.strftime('%B %d, %Y') if current_user.next_billing_date else 'N/A',
+        'paymentMethod': {
+            'type': payment_method.card.brand.capitalize() if payment_method else None,
+            'last4': payment_method.card.last4 if payment_method else None,
+            'expiryDate': f"{payment_method.card.exp_month}/{payment_method.card.exp_year}" if payment_method else None
+        } if payment_method else None,
+        'billingHistory': [
+            {
+                'date': invoice.date.strftime('%B %d, %Y'),
+                'description': invoice.description,
+                'amount': invoice.amount,
+                'invoiceId': invoice.stripe_invoice_id
+            } for invoice in invoices
+        ]
+    }
+    
+    return jsonify(billing_data)
+
+@app.route('/api/update-payment-method', methods=['POST'])
+@login_required_custom
+def api_update_payment_method():
+    card_number = request.form.get('cardNumber')
+    expiry_date = request.form.get('expiryDate')
+    cvv = request.form.get('cvv')
+    
+    try:
+        # Create a new payment method with Stripe
+        payment_method = stripe.PaymentMethod.create(
+            type="card",
+            card={
+                "number": card_number,
+                "exp_month": int(expiry_date.split('/')[0]),
+                "exp_year": int(expiry_date.split('/')[1]),
+                "cvc": cvv,
+            },
+        )
+        
+        # Attach the payment method to the customer
+        stripe.PaymentMethod.attach(
+            payment_method.id,
+            customer=current_user.stripe_customer_id,
+        )
+        
+        # Set as default payment method
+        stripe.Customer.modify(
+            current_user.stripe_customer_id,
+            invoice_settings={"default_payment_method": payment_method.id},
+        )
+        
+        return jsonify({'success': True, 'message': 'Payment method updated successfully'})
+    except stripe.error.StripeError as e:
+        return jsonify({'success': False, 'message': str(e)}), 400
+
+@app.route('/download-invoice/<invoice_id>', methods=['GET'])
+@login_required_custom
+def download_invoice(invoice_id):
+    try:
+        invoice = stripe.Invoice.retrieve(invoice_id)
+        return redirect(invoice.invoice_pdf)
+    except stripe.error.StripeError as e:
+        flash(f"Error downloading invoice: {str(e)}")
+        return redirect(url_for('billing'))
+
 @app.route('/billing', methods=['GET', 'POST'])
 @login_required_custom
 def billing():
@@ -235,16 +364,7 @@ def billing():
             update_stripe_subscription(current_user, new_plan)
             flash(f'Your plan has been updated to {new_plan}')
     
-    # Get current payment method
-    payment_method = get_stripe_payment_method(current_user)
-    
-    # Get billing history
-    invoices = Invoice.query.filter_by(user_id=current_user.id).order_by(Invoice.date.desc()).all()
-    
-    return render_template('billing.html', 
-                           user=current_user, 
-                           payment_method=payment_method, 
-                           invoices=invoices)
+    return render_template('billing.html')
 
 @app.route('/update_payment_method', methods=['POST'])
 @login_required_custom
@@ -351,6 +471,27 @@ def handle_paid_invoice(invoice_data):
         db.session.add(new_invoice)
         db.session.commit()
 
+@app.route('/api/profile', methods=['GET', 'POST'])
+@login_required_custom
+def api_profile():
+    if request.method == 'POST':
+        full_name = request.form.get('full_name')
+        email = request.form.get('email')
+        
+        if email != current_user.email and User.query.filter_by(email=email).first():
+            return jsonify({'success': False, 'message': 'Email already exists'})
+        else:
+            current_user.full_name = full_name
+            current_user.email = email
+            
+            db.session.commit()
+            return jsonify({'success': True, 'message': 'Profile updated successfully'})
+    
+    return jsonify({
+        'full_name': current_user.full_name,
+        'email': current_user.email
+    })
+
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required_custom
 def profile():
@@ -363,6 +504,7 @@ def profile():
         else:
             current_user.full_name = full_name
             current_user.email = email
+            
             db.session.commit()
             flash('Profile updated successfully')
         
@@ -370,13 +512,125 @@ def profile():
     
     return render_template('profile.html')
 
+@app.route('/api/dashboard')
+@login_required_custom
+def dashboard_data():
+    try:
+        # Fetch user statistics
+        user_statistics = {
+            'total_content': get_total_content_count(current_user.id),
+            'active_projects': get_active_projects_count(current_user.id),
+            'account_status': current_user.plan
+        }
+        current_app.logger.debug(f"User statistics: {user_statistics}")
+
+        # Fetch recent content
+        recent_content = get_recent_content(current_user.id, limit=3)
+        current_app.logger.debug(f"Recent content: {recent_content}")
+
+        # Generate content analytics
+        content_analytics = generate_content_analytics(current_user.id)
+        current_app.logger.debug(f"Content analytics: {content_analytics}")
+
+        # User info
+        user_info = {
+            'full_name': current_user.full_name,
+            'email': current_user.email
+        }
+        current_app.logger.debug(f"User info: {user_info}")
+
+        response_data = {
+            'user_statistics': user_statistics,
+            'recent_content': recent_content,
+            'content_analytics': content_analytics,
+            'user_info': user_info
+        }
+        current_app.logger.debug(f"Full response data: {response_data}")
+
+        return jsonify(response_data)
+    except Exception as e:
+        current_app.logger.error(f"Error in dashboard_data: {str(e)}")
+        current_app.logger.error(traceback.format_exc())
+        return jsonify({'error': 'An error occurred while fetching dashboard data'}), 500
+
+def get_total_content_count(user_id):
+    return Content.query.filter_by(user_id=user_id).count()
+
+def get_active_projects_count(user_id):
+    return Project.query.filter_by(user_id=user_id, status='active').count()
+
+def get_recent_content(user_id, limit):
+    recent_content = Content.query.filter_by(user_id=user_id).order_by(Content.created_at.desc()).limit(limit).all()
+    return [{
+        'id': content.id,
+        'title': content.title,
+        'type': content.content_type,
+        'date': content.created_at.strftime('%B %d, %Y')
+    } for content in recent_content]
+
+def generate_content_analytics(user_id):
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=30)
+    
+    content_counts = db.session.query(
+        func.date(Content.created_at).label('date'),
+        func.count(Content.id).label('count')
+    ).filter(
+        Content.user_id == user_id,
+        Content.created_at >= start_date,
+        Content.created_at <= end_date
+    ).group_by(func.date(Content.created_at)).all()
+
+    date_counts = {result.date: result.count for result in content_counts}
+    
+    labels = [(end_date - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(30, 0, -1)]
+    data = [date_counts.get(label, 0) for label in labels]
+
+    return {
+        'labels': labels,
+        'data': data
+    }
+
+@app.route('/api/update-account', methods=['POST'])
+@login_required_custom
+def update_account():
+    full_name = request.form.get('fullName')
+    email = request.form.get('email')
+    password = request.form.get('password')
+
+    if User.query.filter(User.email == email, User.id != current_user.id).first():
+        return jsonify({'success': False, 'message': 'Email already in use'})
+
+    current_user.full_name = full_name
+    current_user.email = email
+    if password:
+        current_user.set_password(password)
+
+    db.session.commit()
+
+    return jsonify({'success': True})
+
+@app.route('/view-content/<int:content_id>')
+@login_required_custom
+def view_content(content_id):
+    content = Content.query.get_or_404(content_id)
+    if content.user_id != current_user.id:
+        abort(403)
+    return render_template('view_content.html', content=content)
+
 @socketio.on('connect')
 def handle_connect():
-    print('Client connected')
+    app.logger.info(f"Client connected: {request.sid}")
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    print('Client disconnected')
+    app.logger.info(f"Client disconnected: {request.sid}")
+
+@socketio.on('join')
+def on_join(data):
+    room = data['room']
+    join_room(room)
+    app.logger.info(f"Client {request.sid} joined room: {room}")
 
 def init_db():
     with app.app_context():
@@ -385,6 +639,6 @@ def init_db():
 
 if __name__ == '__main__':
     init_db()
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=False, host='0.0.0.0', port=5000, ssl_context='adhoc')
 else:
     init_db()

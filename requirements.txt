@@ -2,6 +2,7 @@ flask
 flask-login
 flask-socketio
 flask-cors
+Flask-Migrate
 crewai
 crewai-tools
 tavily-python
