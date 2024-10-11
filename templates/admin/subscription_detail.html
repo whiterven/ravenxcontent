@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>RavenX - Subscription Detail</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="RavenX Subscription Detail" name="keywords">
+    <meta content="Subscription detail page for RavenX AI content generation platform" name="description">
+
+    <!-- Favicon -->
+    <link href="static/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Rubik&display=swap" rel="stylesheet"> 
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="static/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="static/lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="static/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Navbar Start -->
+    <div class="container-fluid bg-white position-relative">
+        <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0">
+            <a href="/index" class="navbar-brand text-secondary">
+                <h1 class="display-4 text-uppercase">RavenX</h1>
+            </a>
+            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav ml-auto py-0 pr-3 border-right">
+                    <a href="/admin" class="nav-item nav-link">Dashboard</a>
+                    <a href="/admin/users" class="nav-item nav-link">Users</a>
+                    <a href="/admin/content" class="nav-item nav-link">Content</a>
+                    <a href="/admin/subscriptions" class="nav-item nav-link active">Subscriptions</a>
+                    <a href="/admin/payments" class="nav-item nav-link">Payments</a>
+                    <a href="/admin/settings" class="nav-item nav-link">Settings</a>
+                    <a href="/admin/analytics" class="nav-item nav-link">Analytics</a>
+                    <a href="/logout" class="nav-item nav-link">Logout</a>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- Navbar End -->
+
+    <!-- Page Header Start -->
+    <div class="page-header container-fluid bg-primary d-flex flex-column align-items-center justify-content-center">
+        <h1 class="display-3 text-uppercase mb-3">Subscription Detail</h1>
+        <div class="d-inline-flex text-white">
+            <h6 class="text-uppercase m-0"><a class="text-white" href="">Admin</a></h6>
+            <h6 class="m-0  px-3">/</h6>
+            <h6 class="text-uppercase m-0">Subscription Detail</h6>
+        </div>
+    </div>
+    <!-- Page Header End -->
+
+    <!-- Subscription Detail Content Start -->
+    <div class="container-fluid py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <h2 class="mb-4">Subscription Information</h2>
+                    <div id="subscriptionInfo">
+                        <!-- Subscription information will be populated here -->
+                    </div>
+                    <h3 class="mt-5 mb-4">Payment History</h3>
+                    <div id="paymentHistory">
+                        <!-- Payment history will be populated here -->
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <h3 class="mb-4">Actions</h3>
+                    <div class="list-group">
+                        <button class="list-group-item list-group-item-action" id="editSubscription">Edit Subscription</button>
+                        <button class="list-group-item list-group-item-action" id="cancelSubscription">Cancel Subscription</button>
+                        <button class="list-group-item list-group-item-action" id="renewSubscription">Renew Subscription</button>
+                        <button class="list-group-item list-group-item-action" id="upgradeSubscription">Upgrade Subscription</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Subscription Detail Content End -->
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
+    <script src="static/lib/easing/easing.min.js"></script>
+    <script src="static/lib/waypoints/waypoints.min.js"></script>
+    <script src="static/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="static/lib/isotope/isotope.pkgd.min.js"></script>
+    <script src="static/lib/lightbox/js/lightbox.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="static/js/main.js"></script>
+
+    <!-- Page Specific Javascript -->
+    <script src="static/js/admin_dashboard.js"></script>
+</body>
+
+</html>

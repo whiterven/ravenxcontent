@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>RavenX - AI Content Generation Agency</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="AI Content Generation, Social Media Posts, Blog Posts, Articles, White Papers" name="keywords">
+    <meta content="RavenX is your premier AI-powered content generation agency, specializing in creating high-quality social media posts, blog posts, articles, white papers, and more." name="description">
+
+    <!-- Favicon -->
+    <link href="static/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Rubik&display=swap" rel="stylesheet"> 
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="static/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="static/lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="static/css/style.css" rel="stylesheet">
+
+    <!--Socketio -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    
+</head>
+
+<body>
+    <!-- Navbar Start -->
+    <div class="container-fluid bg-white position-relative">
+        <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0">
+            <a href="{{ url_for('index') }}" class="navbar-brand text-secondary">
+                <h1 class="display-4 text-uppercase">RavenX</h1>
+            </a>
+            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav ml-auto py-0 pr-3">
+                    <a href="{{ url_for('dashboard') }}" class="nav-item nav-link">Dashboard</a>
+                    <a href="{{ url_for('content') }}" class="nav-item nav-link">Generate Content</a>
+                    <a href="{{ url_for('blog') }}" class="nav-item nav-link">Blog</a>
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" id="user-dropdown">
+                            <span id="user-fullname">{{ current_user.full_name }}</span>
+                        </a>
+                        <div class="dropdown-menu">
+                            <a href="{{ url_for('profile') }}" class="dropdown-item">Profile</a>
+                            <a href="{{ url_for('billing') }}" class="dropdown-item">Billing</a>
+                            <a href="#" class="dropdown-item" id="signout-link">Sign Out</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- Navbar End -->
+
+    <!-- Page Header Start -->
+    <div class="page-header container-fluid bg-primary d-flex flex-column align-items-center justify-content-center">
+        <h1 class="display-3 text-uppercase mb-3">View Content</h1>
+        <div class="d-inline-flex text-white">
+            <h6 class="text-uppercase m-0"><a class="text-white" href="{{ url_for('dashboard') }}">Dashboard</a></h6>
+            <h6 class="m-0 px-3">/</h6>
+            <h6 class="text-uppercase m-0">View Content</h6>
+        </div>
+    </div>
+    <!-- Page Header End -->
+
+    <!-- Content View Start -->
+    <div class="container-fluid py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="bg-light p-4 mb-5">
+                        <h2 class="text-uppercase mb-4">{{ content.title }}</h2>
+                        <p><strong>Type:</strong> <span class="badge badge-primary">{{ content.content_type }}</span></p>
+                        <p><strong>Generated on:</strong> {{ content.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                        <hr>
+                        <div id="content-body">
+                            {{ content.content | safe }}
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+                        <button id="copy-content" class="btn btn-secondary ml-2">Copy Content</button>
+                        <button id="download-content" class="btn btn-info ml-2">Download as Text</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Content View End -->
+
+    <!-- Footer Start -->
+    <div class="container-fluid bg-dark text-white-50 py-5 px-sm-3 px-md-5" style="margin-top: 90px;">
+        <div class="row pt-5">
+            <div class="col-lg-3 col-md-6 mb-5">
+                <a href="{{ url_for('index') }}" class="navbar-brand">
+                    <h1 class="m-0 mt-n2 text-white display-4">RavenX</h1>
+                </a>
+                <p>Your AI-powered content generation platform</p>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-5">
+                <h4 class="text-uppercase text-white mb-4">Get In Touch</h4>
+                <p>Contact us for any inquiries or support</p>
+                <p><i class="fa fa-map-marker-alt mr-2"></i>123 Street, New York, USA</p>
+                <p><i class="fa fa-phone-alt mr-2"></i>+012 345 67890</p>
+                <p><i class="fa fa-envelope mr-2"></i>info@ravenx.com</p>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-5">
+                <h4 class="text-uppercase text-white mb-4">Quick Links</h4>
+                <div class="d-flex flex-column justify-content-start">
+                    <a class="text-white-50 mb-2" href="{{ url_for('index') }}"><i class="fa fa-angle-right mr-2"></i>Home</a>
+                    <a class="text-white-50 mb-2" href="{{ url_for('about') }}"><i class="fa fa-angle-right mr-2"></i>About</a>
+                    <a class="text-white-50 mb-2" href="{{ url_for('service') }}"><i class="fa fa-angle-right mr-2"></i>Services</a>
+                    <a class="text-white-50 mb-2" href="{{ url_for('pricing') }}"><i class="fa fa-angle-right mr-2"></i>Pricing</a>
+                    <a class="text-white-50" href="{{ url_for('contact') }}"><i class="fa fa-angle-right mr-2"></i>Contact</a>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-5">
+                <h4 class="text-uppercase text-white mb-4">Newsletter</h4>
+                <p class="mb-4">Subscribe to our newsletter for the latest updates</p>
+                <div class="w-100">
+                    <div class="input-group">
+                        <input type="text" class="form-control border-light" style="padding: 25px;" placeholder="Your Email">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary px-4">Sign Up</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid bg-dark text-white border-top py-4 px-sm-3 px-md-5" style="border-color: #3E3E4E !important;">
+        <div class="row">
+            <div class="col-lg-6 text-center text-md-left mb-3 mb-md-0">
+                <p class="m-0 text-white-50">Copyright &copy; <a href="#">RavenX</a>. All Rights Reserved.</p>
+            </div>
+            <div class="col-lg-6 text-center text-md-right">
+                <ul class="nav d-inline-flex">
+                    <li class="nav-item">
+                        <a class="nav-link text-white py-0" href="#">Privacy</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white py-0" href="#">Terms</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white py-0" href="#">FAQs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white py-0" href="#">Help</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/view_content.js') }}"></script>
+</body>

@@ -18,6 +18,11 @@ import traceback
 from flask import current_app
 from flask_migrate import Migrate
 
+
+#importing admin features
+from admin import init_admin
+
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', 'fallback_secret_key')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
@@ -26,8 +31,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=3)  # Set session tim
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-socketio = SocketIO(app, cors_allowed_origins="*", logger=True, engineio_logger=True)
-
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -93,13 +97,10 @@ def login_required_custom(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# Crew functions (as per your agents and tasks)
 def create_crew(topic, content_type, target_audience, tone, request_id):
-    # Create agents using the imported functions
     researcher = create_researcher(topic, target_audience)
     writer = create_writer(content_type, tone, target_audience)
 
-    # Create tasks
     task1 = create_researcher_task(researcher, topic, target_audience)
     task2 = create_writer_task(writer, content_type, tone, target_audience)
 
@@ -116,11 +117,9 @@ def create_crew(topic, content_type, target_audience, tone, request_id):
 def run_crew(topic, content_type, target_audience, tone, request_id, user_id):
     with app.app_context():
         try:
-            app.logger.info(f"Starting content generation for request_id: {request_id}")
             crew = create_crew(topic, content_type, target_audience, tone, request_id)
             
             socketio.emit('generation_progress', {'message': 'Starting content generation...'}, room=request_id)
-            app.logger.info(f"Emitted generation_progress for request_id: {request_id}")
             
             crew_output = crew.kickoff()
             
@@ -146,15 +145,10 @@ def run_crew(topic, content_type, target_audience, tone, request_id, user_id):
             db.session.add(new_content)
             db.session.commit()
             
-            app.logger.info(f"Content generation completed for request_id: {request_id}")
-            app.logger.info(f"Emitting generation_complete for request_id: {request_id}")
             socketio.emit('generation_complete', {'result': result, 'request_id': request_id}, room=request_id)
-            app.logger.info(f"Emitted generation_complete for request_id: {request_id}")
         except Exception as e:
-            app.logger.error(f"Error in background task for request_id {request_id}: {str(e)}")
-            app.logger.error(traceback.format_exc())
             socketio.emit('generation_error', {'error': 'An error occurred during content generation.', 'request_id': request_id}, room=request_id)
-# Routes
+
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -171,7 +165,6 @@ def dashboard():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        print(request.form)  # Debug print
         full_name = request.form.get('full_name')
         email = request.form.get('email')
         password = request.form.get('password')
@@ -197,7 +190,6 @@ def signup():
             return jsonify({'success': True, 'message': 'Account created successfully'})
         except Exception as e:
             db.session.rollback()
-            app.logger.error(f"Error during signup: {str(e)}")
             return jsonify({'success': False, 'message': 'An error occurred during signup'})
     
     return render_template('signup.html')
@@ -205,7 +197,6 @@ def signup():
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
     if request.method == 'POST':
-        print(request.form)  # Debug print
         email = request.form.get('email')
         password = request.form.get('password')
         
@@ -240,7 +231,6 @@ def generate():
     tone = data['tone']
     request_id = str(uuid.uuid4())
 
-    app.logger.info(f"Starting generation for request_id: {request_id}")
     thread = Thread(target=run_crew, args=(topic, content_type, target_audience, tone, request_id, current_user.id))
     thread.start()
     
@@ -282,15 +272,13 @@ def service():
 @app.route('/api/billing', methods=['GET'])
 @login_required_custom
 def api_billing():
-    # Get current payment method
     payment_method = get_stripe_payment_method(current_user)
     
-    # Get billing history
     invoices = Invoice.query.filter_by(user_id=current_user.id).order_by(Invoice.date.desc()).all()
     
     billing_data = {
         'currentPlan': current_user.plan,
-        'billingCycle': 'Monthly',  # You may need to adjust this based on your actual billing cycle logic
+        'billingCycle': 'Monthly',
         'nextBillingDate': current_user.next_billing_date.strftime('%B %d, %Y') if current_user.next_billing_date else 'N/A',
         'paymentMethod': {
             'type': payment_method.card.brand.capitalize() if payment_method else None,
@@ -317,7 +305,6 @@ def api_update_payment_method():
     cvv = request.form.get('cvv')
     
     try:
-        # Create a new payment method with Stripe
         payment_method = stripe.PaymentMethod.create(
             type="card",
             card={
@@ -328,13 +315,11 @@ def api_update_payment_method():
             },
         )
         
-        # Attach the payment method to the customer
         stripe.PaymentMethod.attach(
             payment_method.id,
             customer=current_user.stripe_customer_id,
         )
         
-        # Set as default payment method
         stripe.Customer.modify(
             current_user.stripe_customer_id,
             invoice_settings={"default_payment_method": payment_method.id},
@@ -358,7 +343,6 @@ def download_invoice(invoice_id):
 @login_required_custom
 def billing():
     if request.method == 'POST':
-        # Handle plan change
         new_plan = request.form.get('plan')
         if new_plan in ['Free', 'Standard', 'Premium']:
             update_stripe_subscription(current_user, new_plan)
@@ -387,21 +371,18 @@ def update_stripe_subscription(user, new_plan):
         customer = stripe.Customer.create(email=user.email)
         user.stripe_customer_id = customer.id
     
-    # Define your price IDs for each plan
     price_ids = {
-        'Free': None,  # Free plan doesn't have a price ID
+        'Free': None,
         'Standard': 'price_standard_id',
         'Premium': 'price_premium_id'
     }
     
     if user.stripe_subscription_id:
-        # Update existing subscription
         subscription = stripe.Subscription.modify(
             user.stripe_subscription_id,
             items=[{'price': price_ids[new_plan]}]
         )
     elif new_plan != 'Free':
-        # Create new subscription
         subscription = stripe.Subscription.create(
             customer=user.stripe_customer_id,
             items=[{'price': price_ids[new_plan]}]
@@ -464,7 +445,7 @@ def handle_paid_invoice(invoice_data):
         new_invoice = Invoice(
             user_id=user.id,
             stripe_invoice_id=invoice_data['id'],
-            amount=invoice_data['amount_paid'] / 100,  # Convert cents to dollars
+            amount=invoice_data['amount_paid'] / 100,
             date=datetime.fromtimestamp(invoice_data['created']),
             description=f"Payment for {user.plan} plan"
         )
@@ -516,28 +497,20 @@ def profile():
 @login_required_custom
 def dashboard_data():
     try:
-        # Fetch user statistics
         user_statistics = {
             'total_content': get_total_content_count(current_user.id),
             'active_projects': get_active_projects_count(current_user.id),
             'account_status': current_user.plan
         }
-        current_app.logger.debug(f"User statistics: {user_statistics}")
 
-        # Fetch recent content
         recent_content = get_recent_content(current_user.id, limit=3)
-        current_app.logger.debug(f"Recent content: {recent_content}")
 
-        # Generate content analytics
         content_analytics = generate_content_analytics(current_user.id)
-        current_app.logger.debug(f"Content analytics: {content_analytics}")
 
-        # User info
         user_info = {
             'full_name': current_user.full_name,
             'email': current_user.email
         }
-        current_app.logger.debug(f"User info: {user_info}")
 
         response_data = {
             'user_statistics': user_statistics,
@@ -545,12 +518,9 @@ def dashboard_data():
             'content_analytics': content_analytics,
             'user_info': user_info
         }
-        current_app.logger.debug(f"Full response data: {response_data}")
 
         return jsonify(response_data)
     except Exception as e:
-        current_app.logger.error(f"Error in dashboard_data: {str(e)}")
-        current_app.logger.error(traceback.format_exc())
         return jsonify({'error': 'An error occurred while fetching dashboard data'}), 500
 
 def get_total_content_count(user_id):
@@ -616,26 +586,28 @@ def view_content(content_id):
     content = Content.query.get_or_404(content_id)
     if content.user_id != current_user.id:
         abort(403)
-    return render_template('view_content.html', content=content)
+    return render_template('view-content.html', content=content)
 
 @socketio.on('connect')
 def handle_connect():
-    app.logger.info(f"Client connected: {request.sid}")
+    pass
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    app.logger.info(f"Client disconnected: {request.sid}")
+    pass
 
 @socketio.on('join')
 def on_join(data):
     room = data['room']
     join_room(room)
-    app.logger.info(f"Client {request.sid} joined room: {room}")
 
 def init_db():
     with app.app_context():
         db.create_all()
         print("Database initialized.")
+
+def init_admin(app):
+    app.register_blueprint(admin)
 
 if __name__ == '__main__':
     init_db()

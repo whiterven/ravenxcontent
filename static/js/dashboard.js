@@ -45,7 +45,7 @@ function updateRecentContent(content) {
                             <span class="badge badge-primary ml-auto">${escapeHtml(item.type)}</span>
                         </div>
                         <p class="m-0">Generated on: <span class="text-primary">${escapeHtml(item.date)}</span></p>
-                        <a href="/view-content/${item.id}" class="btn btn-sm btn-outline-primary mt-2">View Content</a>
+                        <a href="/view_content/${item.id}" class="btn btn-sm btn-outline-primary mt-2">View Content</a>
                     </div>
                 `;
                 recentContentContainer.innerHTML += contentHtml;
