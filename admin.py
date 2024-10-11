@@ -1,6 +1,6 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
-from flask_login import current_user, login_required
-from werkzeug.security import generate_password_hash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app, session
+from flask_login import current_user, login_user, logout_user, login_required
+from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import desc
 from datetime import datetime, timedelta
 from functools import wraps
@@ -17,6 +17,61 @@ def admin_required(f):
             return redirect(url_for('main.index'))
         return f(*args, **kwargs)
     return decorated_function
+
+@admin.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if current_user.is_authenticated:
+        return redirect(url_for('admin.admin_dashboard'))
+
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        user = User.query.filter_by(email=email).first()
+
+        if user and user.is_admin and check_password_hash(user.password_hash, password):
+            login_user(user)
+            return redirect(url_for('admin.admin_dashboard'))
+        else:
+            flash('Invalid email or password, or not authorized as admin', 'error')
+
+    return render_template('admin/login.html')
+
+@admin.route('/admin/logout')
+@login_required
+def admin_logout():
+    logout_user()
+    return redirect(url_for('admin.admin_login'))
+
+@admin.route('/admin/signup', methods=['GET', 'POST'])
+def admin_signup():
+    if request.method == 'POST':
+        full_name = request.form['full_name']
+        email = request.form['email']
+        password = request.form['password']
+        confirm_password = request.form['confirm_password']
+        
+        if not all([full_name, email, password, confirm_password]):
+            flash('All fields are required', 'error')
+            return redirect(url_for('admin.admin_signup'))
+        
+        if password != confirm_password:
+            flash('Passwords do not match', 'error')
+            return redirect(url_for('admin.admin_signup'))
+        
+        user = User.query.filter_by(email=email).first()
+        if user:
+            flash('Email already exists', 'error')
+            return redirect(url_for('admin.admin_signup'))
+        
+        new_user = User(full_name=full_name, email=email, is_admin=True)
+        new_user.set_password(password)
+        db.session.add(new_user)
+        db.session.commit()
+        
+        login_user(new_user)
+        return redirect(url_for('admin.admin_dashboard'))
+    
+    return render_template('admin/signup.html')
 
 @admin.route('/admin')
 @login_required
@@ -297,6 +352,24 @@ def log_admin_action(action):
     log = AuditLog(admin_id=current_user.id, action=action)
     db.session.add(log)
     db.session.commit()
+
+def init_admin(app):
+    app.register_blueprint(admin)
+
+@admin.route('/admin/content/<int:content_id>/delete', methods=['POST'])
+@login_required
+@admin_required
+def delete_content(content_id):
+    content = Content.query.get_or_404(content_id)
+    db.session.delete(content)
+    db.session.commit()
+    flash('Content deleted successfully', 'success')
+    
+    log_admin_action(f"Deleted content: {content.id}")
+    
+    return redirect(url_for('admin.content_management'))
+
+
 
 # This function should be called when setting up the main Flask app
 #def init_admin(app):

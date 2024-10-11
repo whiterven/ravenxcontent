@@ -18,17 +18,16 @@ import traceback
 from flask import current_app
 from flask_migrate import Migrate
 
-
-#importing admin features
+# importing admin features and models
 from admin import init_admin
-
+from models import db, User, Invoice, Content, Project
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', 'fallback_secret_key')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=3)  # Set session timeout to 3 hours
-db = SQLAlchemy(app)
+db.init_app(app)
 migrate = Migrate(app, db)
 
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -39,51 +38,6 @@ login_manager.login_view = 'signin'
 
 # Stripe configuration
 stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
-
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    full_name = db.Column(db.String(120), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128))
-    plan = db.Column(db.String(20), default='Free')
-    stripe_customer_id = db.Column(db.String(255), unique=True, nullable=True)
-    stripe_subscription_id = db.Column(db.String(255), unique=True, nullable=True)
-    next_billing_date = db.Column(db.DateTime, nullable=True)
-
-    def set_password(self, password):
-        if not password:
-            raise ValueError("Password cannot be empty")
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
-
-class Invoice(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    stripe_invoice_id = db.Column(db.String(255), unique=True, nullable=False)
-    amount = db.Column(db.Float, nullable=False)
-    date = db.Column(db.DateTime, nullable=False)
-    description = db.Column(db.String(255), nullable=False)
-
-class Content(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    title = db.Column(db.String(200), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    content_type = db.Column(db.String(50), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    user = db.relationship('User', backref=db.backref('contents', lazy=True))
-
-class Project(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    name = db.Column(db.String(100), nullable=False)
-    status = db.Column(db.String(20), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    user = db.relationship('User', backref=db.backref('projects', lazy=True))
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -445,7 +399,7 @@ def handle_paid_invoice(invoice_data):
         new_invoice = Invoice(
             user_id=user.id,
             stripe_invoice_id=invoice_data['id'],
-            amount=invoice_data['amount_paid'] / 100,
+            amount=invoice_data['amount_paid'] / 100,  # Convert cents to dollars
             date=datetime.fromtimestamp(invoice_data['created']),
             description=f"Payment for {user.plan} plan"
         )
