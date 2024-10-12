@@ -21,7 +21,7 @@ def admin_required(f):
 @admin.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
     if current_user.is_authenticated:
-        return redirect(url_for('admin.admin_dashboard'))
+        return redirect(url_for('admin.admin/dashboard'))
 
     if request.method == 'POST':
         email = request.form['email']
@@ -30,7 +30,7 @@ def admin_login():
 
         if user and user.is_admin and check_password_hash(user.password_hash, password):
             login_user(user)
-            return redirect(url_for('admin.admin_dashboard'))
+            return redirect(url_for('admin.admin/dashboard'))
         else:
             flash('Invalid email or password, or not authorized as admin', 'error')
 

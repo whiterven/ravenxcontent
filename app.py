@@ -169,6 +169,7 @@ def signin():
     
     return render_template('signin.html')
 
+
 @app.route('/signout')
 @login_required_custom
 def signout():
